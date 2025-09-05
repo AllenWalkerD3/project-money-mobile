@@ -5,6 +5,9 @@ class TransactionService {
   static Future<List<dynamic>> getTransactions() async {
     return await ApiService.get("/transactions/transactions/book/2"); // need to update this for release.
   }
+  static Future<List<dynamic>> getTransactionsByBook(int bookId) async {
+    return await ApiService.get("/transactions/transactions/book/$bookId");
+  }
 
   static Future<dynamic> createTransaction(Map<String, dynamic> data) async {
     return await ApiService.post("/transactions", data);

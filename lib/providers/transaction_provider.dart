@@ -9,12 +9,12 @@ class TransactionProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
 
   // Fetch all transactions
-  Future<void> fetchTransactions() async {
+  Future<void> fetchTransactions(int bookId) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final data = await TransactionService.getTransactions();
+      final data = await TransactionService.getTransactionsByBook(bookId=bookId);
       _transactions = data;
     } catch (e) {
       print("Error fetching transactions: $e");

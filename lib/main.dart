@@ -19,7 +19,7 @@ class AccountBookApp extends StatelessWidget {
       child: MaterialApp(
         title: "Account Book",
         theme: ThemeData(primarySwatch: Colors.blue),
-        home: TransactionScreen(),
+        home: TransactionScreen(bookId: 2),
       ),
     );
   }
