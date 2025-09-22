@@ -33,6 +33,9 @@ dependencies:
   http: ^1.2.2        # for REST API calls
   provider: ^6.1.2    # state management (or Riverpod, Bloc, etc.)
   shared_preferences: ^2.3.2 # for local storage (e.g. JWT token)
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  connectivity_plus: ^6.0.3
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
