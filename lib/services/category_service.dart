@@ -3,18 +3,18 @@ import 'api_service.dart';
 
 class CategoryService {
   static Future<List<dynamic>> getCategories() async {
-    return await ApiService.get("/categories");
+    return await ApiService.get("/categories/transactions/categories");
   }
 
   static Future<dynamic> createCategory(Map<String, dynamic> data) async {
-    return await ApiService.post("/categories", data);
+    return await ApiService.post("/categories/transactions/categories", data);
   }
 
   static Future<dynamic> updateCategory(int id, Map<String, dynamic> data) async {
-    return await ApiService.put("/categories/$id", data);
+    return await ApiService.put("/categories/transactions/categories/$id", data);
   }
 
   static Future<void> deleteCategory(int id) async {
-    return await ApiService.delete("/categories/$id");
+    return await ApiService.delete("/categories/transactions/categories/$id");
   }
 }
