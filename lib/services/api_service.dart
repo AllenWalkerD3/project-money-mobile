@@ -33,7 +33,11 @@ class ApiService {
   static dynamic _handleResponse(http.Response response) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return response.body.isNotEmpty ? jsonDecode(response.body) : null;
-    } else {
+    }
+    else if (response.statusCode >= 400 && response.statusCode < 500) {
+      return null;
+    } 
+    else {
       throw Exception("API Error: ${response.statusCode} ${response.body}");
     }
   }
