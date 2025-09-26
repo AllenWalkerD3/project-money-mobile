@@ -13,19 +13,19 @@ class TransactionProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
 
   /// Fetch transactions for a book
-  Future<void> fetchTransactions(int bookId) async {
+  Future<void> fetchTransactions(int bookId, int? categoryId, DateTime? startDate, DateTime? endDate,) async {
     _isLoading = true;
     notifyListeners();
 
     // ✅ Load from cache first
     final cached = txBox.values.where((tx) => tx["book_id"] == bookId).toList();
     if (cached.isNotEmpty) {
-      _transactions = cached.cast<Map<String, dynamic>>();
+      _transactions = cached.cast<Map<dynamic, dynamic>>();
       notifyListeners();
     }
 
     try {
-      final data = await TransactionService.getTransactionsByBook(bookId);
+      final data = await TransactionService.getTransactionsByBook(bookId, categoryId, startDate, endDate);
       _transactions = data;
 
       // clear old cache & replace with latest
