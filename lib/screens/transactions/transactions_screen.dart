@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../providers/transaction_provider.dart';
 import '../../providers/category_provider.dart';
 
+import '../report_screen.dart';
+
 class TransactionScreen extends StatefulWidget {
   final int bookId;
 
@@ -152,7 +154,20 @@ class _TransactionScreenState extends State<TransactionScreen> {
     final provider = Provider.of<TransactionProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text("Transactions")),
+      appBar: AppBar(
+        title: Text("Transactions"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.speaker_notes_rounded),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => ReportScreen(userId: 1, bookId: widget.bookId)),
+              );
+            },
+          ),
+        ],
+      ),
       body: provider.isLoading
           ? Center(child: CircularProgressIndicator())
           : provider.transactions.isEmpty

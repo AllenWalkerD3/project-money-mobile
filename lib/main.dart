@@ -8,6 +8,7 @@ import 'providers/transaction_provider.dart';
 import 'providers/account_provider.dart';
 import 'providers/category_provider.dart';
 import 'providers/book_provider.dart';
+import 'providers/report_provider.dart';
 import 'screens/main_screen.dart';
 
 // Global navigator key to access context outside widgets
@@ -75,6 +76,7 @@ class _AccountBookAppState extends State<AccountBookApp> {
         ChangeNotifierProvider(create: (_) => AccountProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
         ChangeNotifierProvider(create: (_) => BookProvider()),
+        ChangeNotifierProvider(create: (_) => ReportProvider()),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey, // Needed to access context outside widget tree
