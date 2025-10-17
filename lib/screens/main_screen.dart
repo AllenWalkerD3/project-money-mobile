@@ -52,7 +52,7 @@ class _MainScreenState extends State<MainScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => TransactionScreen(bookId: book["id"]),
+                        builder: (_) => TransactionScreen(bookId: book["id"], bookName: book["book_name"]),
                       ),
                     );
                   },

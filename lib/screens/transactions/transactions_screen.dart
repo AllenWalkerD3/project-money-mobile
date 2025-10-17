@@ -7,8 +7,9 @@ import '../report_screen.dart';
 
 class TransactionScreen extends StatefulWidget {
   final int bookId;
+  final String bookName;
 
-  TransactionScreen({super.key, required this.bookId});
+  TransactionScreen({super.key, required this.bookId, required this.bookName});
 
   @override
   _TransactionScreenState createState() => _TransactionScreenState();
@@ -18,6 +19,79 @@ class _TransactionScreenState extends State<TransactionScreen> {
   DateTime? _startDate;
   DateTime? _endDate;
   String? _selectedCategory;
+
+  void _showTransactionDetails(BuildContext context, Map<String, dynamic> tx) {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Wrap(
+            children: [
+              Center(
+                child: Container(
+                  width: 50,
+                  height: 5,
+                  margin: EdgeInsets.only(bottom: 15),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[400],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              Text(
+                "Transaction Details",
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 20),
+
+              _detailRow("Description", tx["description"] ?? "—"),
+              _detailRow("Amount", tx["amount"]?.toString() ?? "—"),
+              _detailRow("Type", tx["transaction_type"]?.toString().toUpperCase() ?? "—"),
+              _detailRow("Category ID", tx["category_id"]?.toString() ?? "—"),
+              _detailRow("Currency", tx["currency"] ?? "—"),
+              _detailRow("Date", tx["datetime"] ?? "—"),
+              _detailRow("Book Name", tx["book"]["book_name"]?.toString() ?? "—"),
+              _detailRow("Remark", tx["remark"]?.toString() ?? "—"),
+              // _detailRow("User ID", tx["user_id"]?.toString() ?? "—"),
+
+              const SizedBox(height: 20),
+              Center(
+                child: ElevatedButton.icon(
+                  icon: Icon(Icons.close),
+                  label: Text("Close"),
+                  onPressed: () => Navigator.pop(ctx),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: TextStyle(fontWeight: FontWeight.w600)),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(color: Colors.grey[700]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -307,8 +381,13 @@ class _TransactionScreenState extends State<TransactionScreen> {
                       return ListTile(
                         title: Text(tx["description"] ?? "No Description"),
                         subtitle: Text(
-                          "Amount: ${tx["amount"]}, Type: ${tx["transaction_type"]}, Date: ${tx["datetime"]}",
+                          "Amount: ${tx["amount"]} | Type: ${tx["transaction_type"].toString().toUpperCase()}",
                         ),
+                        trailing: Text(
+                          tx["currency"] ?? "",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        onTap: () => _showTransactionDetails(context, tx),
                       );
                     },
                   ),
