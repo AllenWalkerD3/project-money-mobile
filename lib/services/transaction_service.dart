@@ -3,8 +3,8 @@ import 'api_service.dart';
 import 'package:intl/intl.dart';
 
 class TransactionService {
-  static Future<List<dynamic>> getTransactions() async {
-    return await ApiService.get("/transactions/transactions/book/2"); // need to update this for release.
+  static Future<List<dynamic>> getTransactions(int bookId) async {
+    return await ApiService.get("/transactions/transactions/book/$bookId"); // need to update this for release.
   }
   static Future<List<dynamic>> getTransactionsByBook(int bookId, int? categoryId, DateTime? startDate, DateTime? endDate) async {
     final queryParams = {
@@ -14,18 +14,23 @@ class TransactionService {
     };
 
     final uri = Uri.parse("/transactions/transactions/book/$bookId").replace(queryParameters: queryParams);
-    return await ApiService.get(uri.toString());
+    try{
+      final response = await ApiService.get(uri.toString());
+      return response;
+    } catch (e) {
+      return [];
+    }
   }
 
   static Future<dynamic> createTransaction(Map<String, dynamic> data) async {
-    return await ApiService.post("/transactions", data);
+    return await ApiService.post("/transactions/transactions", data);
   }
 
   static Future<dynamic> updateTransaction(int id, Map<String, dynamic> data) async {
-    return await ApiService.put("/transactions/$id", data);
+    return await ApiService.put("/transactions/transactions/$id", data);
   }
 
   static Future<void> deleteTransaction(int id) async {
-    return await ApiService.delete("/transactions/$id");
+    return await ApiService.delete("/transactions/transactions/$id");
   }
 }

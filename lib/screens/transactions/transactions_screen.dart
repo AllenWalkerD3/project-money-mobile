@@ -20,6 +20,138 @@ class _TransactionScreenState extends State<TransactionScreen> {
   DateTime? _endDate;
   String? _selectedCategory;
 
+  void _openEditTransactionForm(BuildContext context, Map<String, dynamic> tx) {
+    final txProvider = Provider.of<TransactionProvider>(context, listen: false);
+    final catProvider = Provider.of<CategoryProvider>(context, listen: false);
+
+    catProvider.fetchCategories();
+
+    final descController = TextEditingController(text: tx["description"]);
+    final amountController = TextEditingController(
+      text: tx["amount"].toString(),
+    );
+    String transactionType = tx["transaction_type"] ?? "expense";
+    String? selectedCategory = tx["transaction_category_id"]?.toString();
+    String selectedCurrency = tx["currency"] ?? "ZAR";
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom,
+            left: 16,
+            right: 16,
+            top: 20,
+          ),
+          child: Consumer<CategoryProvider>(
+            builder: (context, catProv, _) {
+              return SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Edit Transaction",
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    SizedBox(height: 16),
+
+                    TextField(
+                      controller: descController,
+                      decoration: InputDecoration(labelText: "Description"),
+                    ),
+                    SizedBox(height: 12),
+
+                    TextField(
+                      controller: amountController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(labelText: "Amount"),
+                    ),
+                    SizedBox(height: 12),
+
+                    DropdownButton<String>(
+                      value: transactionType,
+                      items: ["expense", "income", "transfer"]
+                          .map(
+                            (type) => DropdownMenuItem(
+                              value: type,
+                              child: Text(type),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (val) {
+                        if (val != null) transactionType = val;
+                      },
+                    ),
+                    SizedBox(height: 12),
+
+                    catProv.isLoading
+                        ? CircularProgressIndicator()
+                        : DropdownButton<String>(
+                            value: selectedCategory,
+                            hint: Text("Select Category"),
+                            items: catProv.categories.map((cat) {
+                              return DropdownMenuItem<String>(
+                                value: cat["id"].toString(),
+                                child: Text(cat["name"]),
+                              );
+                            }).toList(),
+                            onChanged: (val) {
+                              selectedCategory = val;
+                            },
+                          ),
+                    SizedBox(height: 12),
+
+                    DropdownButton<String>(
+                      value: selectedCurrency,
+                      items: ["ZAR", "USD", "EUR", "JPY"]
+                          .map(
+                            (cur) =>
+                                DropdownMenuItem(value: cur, child: Text(cur)),
+                          )
+                          .toList(),
+                      onChanged: (val) {
+                        if (val != null) selectedCurrency = val;
+                      },
+                    ),
+                    SizedBox(height: 20),
+
+                    ElevatedButton(
+                      onPressed: () {
+                        txProvider.updateTransaction(tx["id"], {
+                          "description": descController.text,
+                          "remark": tx["remark"] ?? "",
+                          "amount":
+                              double.tryParse(amountController.text) ?? 0.0,
+                          "transaction_type": transactionType,
+                          "transaction_category_id": int.tryParse(
+                            selectedCategory ?? "0",
+                          ),
+                          "currency": selectedCurrency,
+                          "account_type_id": tx["account_type_id"],
+                          "book_id": tx["book_id"],
+                          "is_recurring": tx["is_recurring"] ?? false,
+                          "recurring_id": tx["recurring_id"],
+                        });
+                        Navigator.pop(ctx);
+                      },
+                      child: Text("Save Changes"),
+                    ),
+                    SizedBox(height: 20),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
   void _showTransactionDetails(BuildContext context, Map<String, dynamic> tx) {
     showModalBottomSheet(
       context: context,
@@ -50,21 +182,41 @@ class _TransactionScreenState extends State<TransactionScreen> {
 
               _detailRow("Description", tx["description"] ?? "—"),
               _detailRow("Amount", tx["amount"]?.toString() ?? "—"),
-              _detailRow("Type", tx["transaction_type"]?.toString().toUpperCase() ?? "—"),
-              _detailRow("Category ID", tx["category_id"]?.toString() ?? "—"),
+              _detailRow(
+                "Type",
+                tx["transaction_type"]?.toString().toUpperCase() ?? "—",
+              ),
+              _detailRow(
+                "Category",
+                tx["transaction_category"]["name"]?.toString() ?? "—",
+              ),
               _detailRow("Currency", tx["currency"] ?? "—"),
               _detailRow("Date", tx["datetime"] ?? "—"),
-              _detailRow("Book Name", tx["book"]["book_name"]?.toString() ?? "—"),
+              _detailRow(
+                "Book Name",
+                tx["book"]["book_name"]?.toString() ?? "—",
+              ),
               _detailRow("Remark", tx["remark"]?.toString() ?? "—"),
-              // _detailRow("User ID", tx["user_id"]?.toString() ?? "—"),
 
+              // _detailRow("User ID", tx["user_id"]?.toString() ?? "—"),
               const SizedBox(height: 20),
-              Center(
-                child: ElevatedButton.icon(
-                  icon: Icon(Icons.close),
-                  label: Text("Close"),
-                  onPressed: () => Navigator.pop(ctx),
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton.icon(
+                    icon: Icon(Icons.edit),
+                    label: Text("Edit"),
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _openEditTransactionForm(context, tx);
+                    },
+                  ),
+                  ElevatedButton.icon(
+                    icon: Icon(Icons.close),
+                    label: Text("Close"),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
               ),
             ],
           ),
@@ -186,7 +338,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                     catProv.isLoading
                         ? CircularProgressIndicator()
                         : DropdownButton<String>(
-                            value: selectedCategory,
+                            value: catProv.selectedCategory,
                             hint: Text("Select Category"),
                             items: catProv.categories.map((cat) {
                               return DropdownMenuItem<String>(
@@ -195,7 +347,9 @@ class _TransactionScreenState extends State<TransactionScreen> {
                               );
                             }).toList(),
                             onChanged: (val) {
-                              selectedCategory = val;
+                              setState(() {
+                                catProv.setSelectedCategory(val);
+                              });
                             },
                           ),
                     SizedBox(height: 12),
@@ -221,7 +375,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                           "description": descController.text,
                           "amount": double.tryParse(amountController.text) ?? 0,
                           "transaction_type": transactionType,
-                          "category_id": selectedCategory,
+                          "transaction_category_id": selectedCategory,
                           "currency": selectedCurrency,
                           "user_id": 1,
                           "book_id": widget.bookId,

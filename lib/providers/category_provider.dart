@@ -5,6 +5,7 @@ import '../services/category_service.dart';
 class CategoryProvider with ChangeNotifier {
   List<dynamic> _categories = [];
   bool _isLoading = false;
+  String? selectedCategory;
 
   final categoryBox = Hive.box("categories");
   final pendingBox = Hive.box("pending_ops");
@@ -85,5 +86,10 @@ class CategoryProvider with ChangeNotifier {
         print("Still pending: $op");
       }
     }
+  }
+
+  void setSelectedCategory(String? val) {
+    selectedCategory = val;
+    notifyListeners();
   }
 }

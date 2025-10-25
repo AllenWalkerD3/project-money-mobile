@@ -58,6 +58,27 @@ class TransactionProvider with ChangeNotifier {
     }
   }
 
+  Future<void> updateTransaction(int id, Map<String, dynamic> data) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final response = await TransactionService.updateTransaction(id, data);
+
+      // Update local list
+      final index = transactions.indexWhere((tx) => tx['id'] == id);
+      if (index != -1) {
+        transactions[index] = response;
+      }
+    } catch (e) {
+      print("Error updating transaction: $e");
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+
   /// Delete transaction
   Future<void> deleteTransaction(int id) async {
     _transactions.removeWhere((tx) => tx["id"] == id);
